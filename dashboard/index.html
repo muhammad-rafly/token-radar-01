@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar — pre-token protocols ranked by implied launch value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="mark">◉</div>
+    <div>
+      <h1>TOKEN RADAR</h1>
+      <p class="tag">Pre-token protocols ranked by what their launch would be worth — and how to farm each one.</p>
+    </div>
+  </div>
+  <div class="badges" id="badges"></div>
+</header>
+
+<nav class="views" id="views">
+  <button data-view="board" class="active">Board</button>
+  <button data-view="live">Live tokens</button>
+  <button data-view="method">How the value is built</button>
+</nav>
+
+<section id="boardView">
+  <div class="controls">
+    <input id="q" type="search" placeholder="Search name or slug…" aria-label="Search protocols">
+    <select id="fCategory" aria-label="Filter by category"><option value="">All categories</option></select>
+    <select id="fChain" aria-label="Filter by chain"><option value="">All chains</option></select>
+    <select id="fTvl" aria-label="Minimum TVL">
+      <option value="0">Any TVL</option>
+      <option value="100000000">TVL ≥ $100M</option>
+      <option value="500000000">TVL ≥ $500M</option>
+      <option value="1000000000">TVL ≥ $1B</option>
+    </select>
+    <select id="fSort" aria-label="Sort by">
+      <option value="rank">Sort: rank</option>
+      <option value="implied">Sort: implied value</option>
+      <option value="tvl">Sort: TVL</option>
+      <option value="change">Sort: 7-day change</option>
+      <option value="age">Sort: age</option>
+      <option value="name">Sort: name A–Z</option>
+    </select>
+    <label class="check"><input id="fWatch" type="checkbox"> Watchlist only</label>
+  </div>
+  <p class="count" id="count"></p>
+  <div class="tablewrap">
+    <table id="board">
+      <thead><tr>
+        <th data-k="rank">#</th>
+        <th data-k="name">Protocol</th>
+        <th data-k="category">Category</th>
+        <th data-k="chains">Chains</th>
+        <th data-k="tvl" class="num">TVL</th>
+        <th data-k="change" class="num">7d</th>
+        <th data-k="age" class="num">Age</th>
+        <th data-k="implied" class="num">Implied value</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="hint">Click any row for the protocol's detail view: the value breakdown and its six farm steps.</p>
+</section>
+
+<section id="detailView" hidden>
+  <p><a href="#/board" class="back">← Back to the board</a></p>
+  <div id="detail"></div>
+</section>
+
+<section id="liveView" hidden>
+  <h2>Live tokens — already trading, shown at the market's own value</h2>
+  <p class="lede">These protocols record a token that already trades, so they are not ranked by the model. The board above is only for protocols that record no token. Market caps are the snapshot's own figures.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Protocol</th><th>Category</th><th>Chains</th><th class="num">TVL</th><th class="num">Market cap</th><th class="num">7d</th></tr></thead>
+      <tbody id="liveRows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="methodView" hidden>
+  <h2>How the value is built — model radar-2</h2>
+  <p class="lede">Every number below comes from the sealed snapshot's own figures. No protocol name is ever special-cased: the same function scores every row.</p>
+  <div class="formula">
+    <p><strong>implied value</strong> = TVL × 0.30 × growth × maturity × precedent × reach</p>
+    <ul>
+      <li><strong>Base:</strong> TVL × 0.30. A launch is valued at three-tenths of the value already locked in the protocol.</li>
+      <li><strong>Growth:</strong> 1 + (7-day TVL change, clamped to −50%…+100%) × 0.6. A protocol gaining users is worth more than a flat one; a shrinking one is worth less.</li>
+      <li><strong>Maturity:</strong> 0.70 + min(age in days, 730) / 730 × 0.30. A protocol that has run up to two years with no token has a longer track record and a larger user base to reward. Unknown listing date counts as 365 days.</li>
+      <li><strong>Precedent:</strong> 0.85 + launch-rate(category) × 0.30. The launch rate is the share of the snapshot's protocols in that category that already record a token — read off the snapshot itself, not written by hand. Categories whose peers have mostly launched (Lending, Dexs) score above categories where almost nobody has (Risk Curators). Small categories and protocols with no category use the snapshot's global rate.</li>
+      <li><strong>Reach:</strong> 1 + 0.02 × chains (up to 5). A protocol live on more chains reaches more farmers.</li>
+    </ul>
+  </div>
+  <h3>What the board covers</h3>
+  <p>The board ranks <strong>every protocol on the snapshot's watchlist</strong> — 40 protocols at or above $50M TVL that record no token and are not a wrapped, staked or bridged product of one that trades — plus every other rankable pre-token protocol below the floor. A protocol below the floor is no worse a subject than one on it: the watchlist is a floor, never a ceiling.</p>
+  <h3>Words that matter</h3>
+  <p>The board says a protocol <strong>records no token</strong>, never that it has none: the snapshot is DefiLlama's record, not proof, and a protocol on the list may still have a token its record does not carry. An implied value is this radar's own claim, never a promise — it does not predict whether or when a token is issued.</p>
+  <h3>Farm plans</h3>
+  <p>Every row carries six steps built from the protocol's own record — its category, its chains, its TVL and its age — each with what it costs and how long it takes. The first step is always a fresh wallet; the last is always a farm log. A real airdrop never asks you to pay to claim.</p>
+</section>
+
+<footer>
+  <p>Snapshot: DefiLlama protocols, fetched 2026-11-14. Watchlist floor $50,000,000. 758 protocols at or above $5,000,000 TVL. Model radar-2. Built offline — this page makes no network requests.</p>
+</footer>
+
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
